@@ -5,6 +5,7 @@
 #include <string>
 #include <list>
 #include <random>
+#include "RivuletInterp.hpp"
 
 struct Connection;
 
@@ -14,7 +15,8 @@ struct Connection;
 
 enum class Message : uint8_t {
 	C2S_Controls = 1, //Greg!
-	S2C_State = 's',
+	 C2S_RivChar  = 2,   // client sends 1–4 UTF-8 bytes (one character)
+    S2C_State    = 's',
 	//...
 };
 
@@ -90,6 +92,18 @@ struct Game {
 	void reset_moved_flags(Team t);
 	void advance_turn();                 // toggle team, ++turn_number
 
+	public:
+    // Per-team buffers + last text the client displays:
+    std::u32string riv_buf_red,  riv_buf_blue;
+    std::string    riv_text_red, riv_text_blue;
+
+    // Feed a single char32_t into the team program and (try to) run interpreter:
+    void riv_append(Team t, char32_t ch);
+
+	private:
+    // tiny UTF-32 → UTF-8 (BMP) helper:
+    static std::string u32_to_utf8(const std::u32string& s);
+	
 	//---- communication helpers ----
 
 	//used by client:
