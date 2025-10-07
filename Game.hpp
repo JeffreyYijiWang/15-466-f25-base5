@@ -24,6 +24,10 @@ struct Button {
 	bool pressed = false; //is the button pressed now
 };
 
+// \ Teams / Player 
+
+enum class Team : uint8_t { Red = 0, Blue = 1 };
+
 //state of one player in the game:
 struct Player {
 	//player inputs (sent from client):
@@ -44,6 +48,9 @@ struct Player {
 
 	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 	std::string name = "";
+
+	Team team = Team::Red;
+	bool moved_this_turn = false;
 };
 
 struct Game {
@@ -72,6 +79,16 @@ struct Game {
 	inline static constexpr float PlayerSpeed = 2.0f;
 	inline static constexpr float PlayerAccelHalflife = 0.25f;
 	
+	// ----- turn state / scoring -----
+	Team current_team = Team::Red;
+	uint64_t turn_number = 1;
+	int32_t score_red = 0;
+	int32_t score_blue = 0;
+
+	size_t team_count(Team t) const;
+	bool team_all_moved(Team t) const;   // empty team counts as "done"
+	void reset_moved_flags(Team t);
+	void advance_turn();                 // toggle team, ++turn_number
 
 	//---- communication helpers ----
 

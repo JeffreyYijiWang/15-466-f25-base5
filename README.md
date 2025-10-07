@@ -12,8 +12,8 @@ Networking:  My game implement client/server multiplayer where I make it that we
 
 
 Screen Shot:
-
 ![Screen Shot](image.png)
+This is what I would want the game to be represented, the lines are just old computer typeboarder faces.
 
 How To Play:
 Each player that joins the server will be assigned a player object that is displayed in the top right of the screen. Players are seperated into two teams which take turns to create one strand on the board/line of code or overwrite another teams moved.

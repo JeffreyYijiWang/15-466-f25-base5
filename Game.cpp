@@ -9,6 +9,10 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 
+// ===== Teams / Player =====
+
+enum class Team : uint8_t { Red = 0, Blue = 1 };
+
 void Player::Controls::send_controls_message(Connection *connection_) const {
 	assert(connection_);
 	auto &connection = *connection_;
@@ -78,6 +82,13 @@ bool Player::Controls::recv_controls_message(Connection *connection_) {
 Game::Game() : mt(0x15466666) {
 }
 
+static Team assign_team_balanced(std::mt19937 &mt, size_t red_count, size_t blue_count) {
+	if (red_count < blue_count) return Team::Red;
+	if (blue_count < red_count) return Team::Blue;
+	std::uniform_int_distribution<int> d(0,1);
+	return d(mt) == 0 ? Team::Red : Team::Blue;
+}
+
 Player *Game::spawn_player() {
 	players.emplace_back();
 	Player &player = players.back();
@@ -95,6 +106,10 @@ Player *Game::spawn_player() {
 
 	player.name = "Player " + std::to_string(next_player_number++);
 
+	// --- pick team & reset flag ---
+	player.team = assign_team_balanced(mt, team_count(Team::Red), team_count(Team::Blue));
+	player.moved_this_turn = false;
+
 	return &player;
 }
 
@@ -108,16 +123,56 @@ void Game::remove_player(Player *player) {
 		}
 	}
 	assert(found);
+
+	
 }
+
+size_t Game::team_count(Team t) const {
+	size_t n = 0;
+	for (auto const &p : players) if (p.team == t) ++n;
+	return n;
+}
+
+bool Game::team_all_moved(Team t) const {
+	bool any = false;
+	for (auto const &p : players) {
+		if (p.team != t) continue;
+		any = true;
+		if (!p.moved_this_turn) return false;
+	}
+	// If team has no players, we consider it "done" so turn advances:
+	return !any || true;
+}
+
+void Game::reset_moved_flags(Team t) {
+	for (auto &p : players) if (p.team == t) p.moved_this_turn = false;
+}
+
+void Game::advance_turn() {
+	// flip team, reset their moved flags, bump turn
+	current_team = (current_team == Team::Red ? Team::Blue : Team::Red);
+	reset_moved_flags(current_team);
+	++turn_number;
+}
+
 
 void Game::update(float elapsed) {
 	//position/velocity update:
 	for (auto &p : players) {
 		glm::vec2 dir = glm::vec2(0.0f, 0.0f);
-		if (p.controls.left.pressed) dir.x -= 1.0f;
-		if (p.controls.right.pressed) dir.x += 1.0f;
-		if (p.controls.down.pressed) dir.y -= 1.0f;
-		if (p.controls.up.pressed) dir.y += 1.0f;
+		bool any_down = false;
+
+		// Only current team can move:
+		if (p.team == current_team) {
+			if (p.controls.left.pressed)  { dir.x -= 1.0f; any_down = any_down || (p.controls.left.downs  > 0); }
+			if (p.controls.right.pressed) { dir.x += 1.0f; any_down = any_down || (p.controls.right.downs > 0); }
+			if (p.controls.down.pressed)  { dir.y -= 1.0f; any_down = any_down || (p.controls.down.downs  > 0); }
+			if (p.controls.up.pressed)    { dir.y += 1.0f; any_down = any_down || (p.controls.up.downs    > 0); }
+			if (p.controls.jump.pressed)  { /* optional */ any_down = any_down || (p.controls.jump.downs  > 0); }
+
+			// first action this turn marks as moved:
+			if (any_down && !p.moved_this_turn) p.moved_this_turn = true;
+		}
 
 		if (dir == glm::vec2(0.0f)) {
 			//no inputs: just drift to a stop
@@ -184,6 +239,10 @@ void Game::update(float elapsed) {
 			p1.position.y = ArenaMax.y - PlayerRadius;
 			p1.velocity.y =-std::abs(p1.velocity.y);
 		}
+	}
+
+	if (team_all_moved(current_team)) {
+		advance_turn();
 	}
 
 }
@@ -270,7 +329,18 @@ bool Game::recv_state_message(Connection *connection_) {
 			read(&c);
 			player.name += c;
 		}
+
+		uint8_t t = 0; read(&t);
+		uint8_t m = 0; read(&m);
+		player.team = (t == 0 ? Team::Red : Team::Blue);
+		player.moved_this_turn = (m != 0);
 	}
+
+	uint8_t ct = 0; read(&ct);
+	current_team = (ct == 0 ? Team::Red : Team::Blue);
+	read(&turn_number);
+	read(&score_red);
+	read(&score_blue);
 
 	if (at != size) throw std::runtime_error("Trailing data in state message.");
 
