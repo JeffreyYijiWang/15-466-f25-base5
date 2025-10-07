@@ -2,19 +2,27 @@ Pen's delemma
 
 Author: Jeffrey Wang
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: I wanted to take the esolanguague rivulet, a langugage made by strands of lines and create an interactive game where people are racing to finish making a program to create fibinacii numbers. I was inspired by games like sprout, tick-tac-toe, and a grapgh tree games where you draw brances 
 
-Networking: (TODO: How does your game implement client/server multiplayer? What messages are transmitted? Where in the code?)
+https://observablehq.com/@jwolondon/rivulet-intro
+
+https://github.com/rottytooth/Rivulet/blob/main/rivulet/
+
+Networking:  My game implement client/server multiplayer where I make it that we wait for the other player to move and have the server run and deal with the overwriting of the lines and memory stored in nodes. 
+
 
 Screen Shot:
 
-![Screen Shot](screenshot.png)
+![Screen Shot](image.png)
 
 How To Play:
+Each player that joins the server will be assigned a player object that is displayed in the top right of the screen. Players are seperated into two teams which take turns to create one strand on the board/line of code or overwrite another teams moved.
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+Sources:
 
-Sources: (TODO: list a source URL for any assets you did not create yourself. Make sure you have a license for the asset.)
+https://observablehq.com/@jwolondon/rivulet-intro
+
+https://github.com/rottytooth/Rivulet/blob/main/rivulet/
 
 This game was built with [NEST](NEST.md).
 

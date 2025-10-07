@@ -13,6 +13,20 @@
 #include <array>
 
 PlayMode::PlayMode(Client &client_) : client(client_) {
+
+	//text @GPT
+	text = std::make_unique<TextHB>();
+    bool ok = text->init(data_path("Delius-Regular.ttf"), 32);
+    assert(ok && "Failed to init TextHB");
+
+    std::string err;
+    ok = dialog.load_from_file(data_path("dialogues.txt"), &err);
+    assert(ok && "Failed to load dialogues.txt");
+    if(!ok) SDL_Log("dialog load error: %s", err.c_str());
+
+    cur_state = dialog.start_id;
+    selected = 0;
+    finished = false;
 }
 
 PlayMode::~PlayMode() {
@@ -104,6 +118,8 @@ void PlayMode::update(float elapsed) {
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
+	// https://github.com/jialand/TheMuteLift/blob/main/PlayMode.cpp
+	//reference form JialanD/TheMuteLift and chatgpt
 	static std::array< glm::vec2, 16 > const circle = [](){
 		std::array< glm::vec2, 16 > ret;
 		for (uint32_t a = 0; a < ret.size(); ++a) {
@@ -117,6 +133,68 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 	
+	//update camera aspect ratio for drawable:
+	camera->aspect = float(drawable_size.x) / float(drawable_size.y);
+
+	// black screen
+    glClearColor(0.0f,0.0f,0.0f,1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // draw text：@GPT referenced
+    text->begin(drawable_size);
+
+    const float margin_l = 64.0f;
+    const float margin_r = 64.0f;
+    const float start_x  = margin_l;
+    const float start_y  = 100.0f;   // baseline of first line
+    const float line_h   = 42.0f;
+    const float opt_gap  = 22.0f;
+
+    float max_width = float(drawable_size.x) - margin_l - margin_r;
+
+    const DialogueNode* node = dialog.get(cur_state);
+    if (node) {
+        // --- body with auto wrap ---
+        std::vector<std::string> body_lines;
+        text->wrap_text(node->text, max_width, body_lines);
+
+        float y = start_y;
+        for (auto const& ln : body_lines) {
+            if (!ln.empty())
+                text->draw_text(ln, start_x, y, glm::vec3(0.9f,0.9f,0.9f));
+            y += line_h;
+        }
+
+        // --- options with auto wrap (arrow on first line of each option) ---
+        y += opt_gap;
+        for (int i = 0; i < (int)node->options.size(); ++i) {
+            bool sel = (i == selected);
+            glm::vec3 color = sel ? glm::vec3(1.0f,0.9f,0.2f) : glm::vec3(0.8f,0.8f,0.8f);
+
+            std::vector<std::string> opt_lines;
+            text->wrap_text(node->options[i].label, max_width - 28.0f, opt_lines); // leave room for arrow
+
+            bool first = true;
+            for (auto const& ln : opt_lines) {
+                if (first) {
+                    if (sel) text->draw_text("▶ ", start_x, y, color);
+                    else     text->draw_text("  ", start_x, y, color);
+                    text->draw_text(ln, start_x + 28.0f, y, color);
+                    first = false;
+                } else {
+                    text->draw_text("  ", start_x, y, color);
+                    text->draw_text(ln, start_x + 28.0f, y, color);
+                }
+                y += line_h;
+            }
+        }
+    } else {
+        text->draw_text("Dialogue node not found.", start_x, start_y, glm::vec3(1.0f,0.4f,0.4f));
+    }
+
+    text->end();
+
+
 	//figure out view transform to center the arena:
 	float aspect = float(drawable_size.x) / float(drawable_size.y);
 	float scale = std::min(

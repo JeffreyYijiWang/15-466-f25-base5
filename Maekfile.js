@@ -14,7 +14,7 @@
 
 //maek is configured using properties and methods of the `maek` object:
 const maek = init_maek();
-// (it's a quirk of javascript that function definitions anywhere in scope get 'hoisted'
+// (it's a quirk. of javascript that function definitions anywhere in scope get 'hoisted'
 //   -- you can see the definition of init_maek by scrolling down.)
 
 //Read onward to discover how to configure Maek for your build!
@@ -156,7 +156,9 @@ const client_names = [
 	//maek.CPP('ColorTextureProgram.cpp'),  //not used right now, but you might want it
 	maek.CPP('Sound.cpp'),
 	maek.CPP('load_wav.cpp'),
-	maek.CPP('load_opus.cpp')
+	maek.CPP('load_opus.cpp'),
+	maek.CPP('TextHB.cpp'),
+	maek.CPP('Dialogue.cpp')
 ];
 
 const server_names = [

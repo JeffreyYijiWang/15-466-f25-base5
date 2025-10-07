@@ -1,0 +1,167 @@
+[
+    {
+        "symbol":   ["╵"],
+        "name":     "start_glyph",
+        "readings": [
+            {
+                "pos": "loc_marker",
+                "dir": "down",
+                "type": "loc_marker"
+            }
+        ]
+    },
+    {
+        "symbol":   ["╷"],
+        "name":     "end_glyph",
+        "readings": [
+            {
+                "pos": "start",
+                "dir": "down",
+                "type": "question_marker"
+            },
+            {
+                "pos": "loc_marker",
+                "dir": "up",
+                "type": "loc_marker"
+            }
+        ]
+    },
+    {
+        "symbol":   [ "╮","┐"],
+        "name":     "dl_corner",
+        "readings": [
+            {
+                "pos": "start",
+                "dir": "down",
+                "type": "data"
+            },
+            {
+                "pos": "start",
+                "dir": "left",
+                "type": "action"
+            },
+            {
+                "pos": "corner",
+                "dir": ["left","down"]
+            }
+        ]
+    },
+    {
+        "symbol":   [ "╭","┌"],
+        "name":     "dr_corner",
+        "readings": [
+            {
+                "pos": "start",
+                "dir": "down",
+                "type": "action"
+            },
+            {
+                "pos": "start",
+                "dir": "right",
+                "type": "action"
+            },
+            {
+                "pos": "corner",
+                "dir": ["right","down"]
+            }
+        ]
+    },
+    {
+        "symbol":   ["╰","└"],
+        "name":     "ur_corner",
+        "readings": [
+            {
+                "pos": "start",
+                "dir": "up",
+                "type": "action"
+            },
+            {
+                "pos": "start",
+                "dir": "right",
+                "type": "data"
+            },
+            {
+                "pos": "corner",
+                "dir": ["right","up"]
+            }
+        ]
+    },
+    {
+        "symbol":   ["╯","┘"],
+        "name":     "ul_corner",
+        "readings": [
+            {
+                "pos": "start",
+                "dir": "up",
+                "type": "data"
+            },
+            {
+                "pos": "start",
+                "dir": "left",
+                "type": "data"
+            },
+            {
+                "pos": "corner",
+                "dir": ["left","up"]
+            }
+        ]
+    },
+    {
+        "symbol":   ["│"],
+        "name":     "vertical",
+        "readings": [
+            {
+                "pos": "end",
+                "dir": ["up","down"]
+            },
+            {
+                "pos": "continue",
+                "dir": ["up","down"]
+            }
+        ]
+    },
+    {
+        "symbol":   ["─"],
+        "name":     "horizontal",
+        "readings": [
+            {
+                "pos": "end",
+                "dir": ["right","left"]
+            },
+            {
+                "pos": "continue",
+                "dir": ["right","left"]
+            }
+        ]
+    },
+    {
+        "symbol":   ["╴"],
+        "name":     "r_end",
+        "readings": [
+            {
+                "pos": "pre_start",
+                "dir": "left"
+            },
+            {
+                "pos": "loc_marker",
+                "dir": "right",
+                "type": "loc_marker"
+            }
+        ]    
+    },
+    {
+        "symbol":   ["╶"],
+        "name":     "l_end",
+        "readings": [
+            {
+                "pos": "pre_start",
+                "dir": "right"
+            },
+            {
+                "pos": "loc_marker",
+                "dir": "left",
+                "type": "loc_marker"
+            }
+        ]    
+    }
+]
